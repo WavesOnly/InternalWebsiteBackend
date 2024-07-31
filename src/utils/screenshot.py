@@ -32,12 +32,4 @@ class Screenshot:
         success = imwrite(path, frame)
         if not success:
             raise RuntimeError("Failed to save the frame to a temporary file.")
-        print(f"Frame saved temporarily at {path}")
         return path
-        # with TemporaryDirectory() as directory:
-        #     path = join(directory, "Thumbnail.jpg")
-        #     success = imwrite(path, frame)
-        #     if not success:
-        #         raise RuntimeError("Failed to save the frame to a temporary file.")
-        #     print(f"Frame saved temporarily at {path}")
-        #     return path
