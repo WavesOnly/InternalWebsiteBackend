@@ -22,45 +22,10 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Welcome to the WavesOnly API"}
 
 
 if __name__ == "__main__":
-
     import uvicorn
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-# @app.post("/add-song")
-# async def add_song():
-#     return {"message": "Hello World"}
-
-
-# @app.get("/get-playlists")
-# async def get_playlist():
-#     return {"message": "Hello World"}
-
-
-# @app.get("/get-playlist-items")
-# async def get_playlist():
-#     return {"message": "Hello World"}
-
-
-# @app.put("/update-playlist")
-# async def update_playlist():
-#     return {"message": "Hello World"}
-
-
-# @app.get("/history")
-# async def history():
-#     return {"message": "Hello World"}
-
-
-# @app.post("/monetization")
-# async def monetization():
-#     return {"message": "Hello World"}
-
-
-# @app.post("/spotify-analytics")
-# async def spotify_analytics():
-#     return {"message": "Hello World"}

@@ -9,8 +9,10 @@ from src.models.user import User
 from src.utils.youtube.client import youtube
 from src.utils.youtube.data import YouTubeApiData
 from src.utils.youtube.analytics import YouTubeApiAnalytics
+from src.utils.youtube.upload import Upload
 from src.utils.months import months
 from src.utils.youtube.description import text
+
 
 router = APIRouter(prefix="/youtube")
 
@@ -63,7 +65,11 @@ async def upload(
         description = (
             f"WavesOnly Throwback Thursday: {title}\n\n{description}" if throwbackThursday else f"{title}\n\n{description}"
         )
-        background.add_task(YouTubeApiData(token=youtube.token).upload, video=video, title=title, description=description)
+        playlists = playlists.split(",") if playlists else []
+        print(playlists)
+        background.add_task(
+            Upload().orchestrate, video=video, file=file, title=title, description=description, playlists=playlists
+        )
         return {"message": "Uploaded started"}
     except AttributeError as e:
         print(f"Error: {e}")

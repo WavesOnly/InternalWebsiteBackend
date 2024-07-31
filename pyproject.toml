@@ -6,7 +6,7 @@ authors = ["WavesOnly <wavesonlyofficial@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9.13"
 fastapi = "^0.111.1"
 pymongo = "^4.8.0"
 fastapi-cors = "^0.0.6"
@@ -14,6 +14,7 @@ python-multipart = "^0.0.9"
 requests = "^2.32.3"
 python-dotenv = "^1.0.1"
 python-dateutil = "^2.9.0.post0"
+opencv-python = "^4.10.0.84"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.1"

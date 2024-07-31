@@ -1,4 +1,7 @@
 import json
+import mimetypes
+import os
+import subprocess
 
 from src.utils.api import session, YouTubeHandler
 
@@ -41,6 +44,31 @@ class YouTubeApiData:
         headers = {"Authorization": f"Bearer {self.token}", "Accept": "application/json", "Content-Type": "application/json"}
         response = self.session.post(url, headers=headers, data=json.dumps(metadata))
         location = response.headers.get("Location")
+        if not location:
+            raise Exception("Upload failed")
         headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "video/*"}
         response = self.session.put(location, headers=headers, data=video)
         return response.json()
+
+    def thumbnail(self, videoId: str, path: str):
+        url = "https://www.googleapis.com/upload/youtube/v3/thumbnails/set"
+        params = {"videoId": videoId, "uploadType": "media"}
+        headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "image/jpeg"}
+        with open(path, "rb") as thumbnail:
+            response = self.session.post(url=url, headers=headers, params=params, data=thumbnail)
+        return response.json()
+
+    def playlist(self, playlistId: str, videoId: str):
+        url = f"{YouTubeApiData.url}/playlistItems?part=snippet"
+        data = {"snippet": {"playlistId": playlistId, "resourceId": {"kind": "youtube#video", "videoId": videoId}}}
+        headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
+        response = self.session.post(url=url, headers=headers, json=data)
+        print(response.json())
+        return response.json()
+
+    def rate(self, videoId: str, rating: str = "like") -> None:
+        url = f"{YouTubeApiData.url}/videos/rate"
+        params = {"id": videoId, "rating": rating}
+        response = self.session.post(url=url, headers={"Authorization": f"Bearer {self.token}"}, params=params)
+        if response.status_code != 204:
+            raise Exception(f"Rating for video {videoId} failed")
