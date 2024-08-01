@@ -6,7 +6,7 @@ authors = ["WavesOnly <wavesonlyofficial@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9.13"
+python = "^3.8.10"
 fastapi = "^0.111.1"
 pymongo = "^4.8.0"
 fastapi-cors = "^0.0.6"
