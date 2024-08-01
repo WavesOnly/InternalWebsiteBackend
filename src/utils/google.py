@@ -15,7 +15,7 @@ async def exchange_code_for_tokens(code: str) -> Tokens:
                 "code": unquote(code),
                 "client_id": "451560312486-u0l307e2q72kaoj3fhe545vuvnakch3t.apps.googleusercontent.com",
                 "client_secret": "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",
-                "redirect_uri": "https://internalwebsitefrontend.onrender.com/",
+                "redirect_uri": "https://internalwebsitefrontend.onrender.com",
                 "grant_type": "authorization_code",
             },
         )
