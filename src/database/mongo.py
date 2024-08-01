@@ -2,12 +2,13 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from os import environ
 from typing import Union, Optional, List, Tuple
+import certifi
 
 
 class Mongo:
     def __init__(self):
         load_dotenv(".env")
-        self.client = MongoClient(environ["MONGO_CONNECTION_STRING"])
+        self.client = MongoClient(environ["MONGO_CONNECTION_STRING"], tlsCAFile=certifi.where())
         self.db = self.client["InternalWebsite"]
 
     def insert(self, collection: str, document: dict) -> str:

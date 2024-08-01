@@ -3,10 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.routes import auth
 from src.routes import youtube
 from src.routes import spotify
+from src.routes import general
 
 
 app = FastAPI()
 
+app.include_router(general.router)
 app.include_router(auth.router)
 app.include_router(spotify.router)
 app.include_router(youtube.router)
@@ -18,12 +20,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the WavesOnly API"}
-
 
 if __name__ == "__main__":
     import uvicorn

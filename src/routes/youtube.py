@@ -58,18 +58,10 @@ async def upload(
     playlists: Optional[str] = Form(""),
     comment: Optional[str] = Form(""),
 ):
-    try:
-        video = await file.read()
-        title = splitext(basename(file.filename))[0]
-        description = f"{comment}\n\n{text}" if comment else text
-        description = (
-            f"WavesOnly Throwback Thursday: {title}\n\n{description}" if throwbackThursday else f"{title}\n\n{description}"
-        )
-        playlists = playlists.split(",") if playlists else []
-        print(playlists)
-        background.add_task(
-            Upload().orchestrate, video=video, file=file, title=title, description=description, playlists=playlists
-        )
-        return {"message": "Uploaded started"}
-    except AttributeError as e:
-        print(f"Error: {e}")
+    video = await file.read()
+    title = splitext(basename(file.filename))[0]
+    description = f"{comment}\n\n{text}" if comment else text
+    description = f"WavesOnly Throwback Thursday: {title}\n\n{description}" if throwbackThursday else f"{title}\n\n{description}"
+    playlists = playlists.split(",") if playlists else []
+    background.add_task(Upload().orchestrate, video=video, file=file, title=title, description=description, playlists=playlists)
+    return {"message": "Uploaded started"}

@@ -63,7 +63,6 @@ class YouTubeApiData:
         data = {"snippet": {"playlistId": playlistId, "resourceId": {"kind": "youtube#video", "videoId": videoId}}}
         headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
         response = self.session.post(url=url, headers=headers, json=data)
-        print(response.json())
         return response.json()
 
     def rate(self, videoId: str, rating: str = "like") -> None:
