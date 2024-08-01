@@ -32,7 +32,6 @@ async def verify_google_token(token: str):
             raise HTTPException(status_code=400, detail="Invalid ID token")
         info = response.json()
 
-        # Check audience (client ID)
         if info["aud"] != "451560312486-u0l307e2q72kaoj3fhe545vuvnakch3t.apps.googleusercontent.com":
             raise HTTPException(status_code=400, detail="Invalid client ID")
 
