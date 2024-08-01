@@ -13,7 +13,7 @@ async def login(auth: Auth, response: Response):
     user = await verify_google_token(tokens.idToken)
     if user["email"].lower() != "wavesonlyofficial@gmail.com":
         raise HTTPException(status_code=404, detail="Invalid user")
-    response.set_cookie(key="refreshToken", value=tokens.refreshToken, httponly=True, secure=True, path="/")
+    response.set_cookie(key="refreshToken", value=tokens.refreshToken, httponly=True, secure=True, path="/", samesite="None")
     return {"idToken": tokens.idToken, "user": {"email": user["email"], "name": user["name"]}}
 
 
