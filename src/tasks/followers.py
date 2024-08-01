@@ -29,6 +29,16 @@ class UpdateSpotifyData:
                 },
                 upsert=True,
             )
+            document = self.mongo.one(collection="spotifyPlaylists", query={"playlistId": playlist["id"]})
+            growth = self._average(history=document["followerHistory"])
+            self.mongo.update(
+                collection="spotifyPlaylists",
+                id={"playlistId": playlist["id"]},
+                query={
+                    "$set": {"averageGrowth": growth},
+                },
+                upsert=False,
+            )
 
     def _account(self):
         user = self.api.user()
@@ -43,3 +53,10 @@ class UpdateSpotifyData:
             },
             upsert=True,
         )
+
+    def _average(self, history: list[dict]) -> int:
+        if not history or len(history) < 2:
+            return 0.0
+        counts = [item["followers"] for item in history]
+        changes = [counts[i] - counts[i - 1] for i in range(1, len(counts))]
+        return sum(changes) / len(changes)
