@@ -1,4 +1,5 @@
 from tempfile import TemporaryDirectory
+from os import remove
 
 from src.utils.youtube.client import youtube
 from src.utils.youtube.data import YouTubeApiData
@@ -33,3 +34,5 @@ class Upload:
             self.api.rate(videoId=upload["id"])
         except Exception as e:
             print(e)
+        finally:
+            remove(path)

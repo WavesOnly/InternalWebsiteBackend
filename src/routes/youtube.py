@@ -60,8 +60,9 @@ async def upload(
     comment: Optional[str] = Form(""),
 ):
     with NamedTemporaryFile(delete=False, suffix=".mp4") as video:
-        while chunk := await file.read(1024):
+        while chunk := await file.read(4096):
             video.write(chunk)
+            print("Chunk wrote")
         path = video.name
     title = splitext(basename(file.filename))[0]
     description = f"{comment}\n\n{text}" if comment else text
