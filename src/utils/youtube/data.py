@@ -1,7 +1,4 @@
 import json
-import mimetypes
-import os
-import subprocess
 
 from src.utils.api import session, YouTubeHandler
 
