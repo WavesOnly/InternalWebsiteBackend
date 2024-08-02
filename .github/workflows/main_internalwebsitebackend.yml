@@ -60,9 +60,3 @@ jobs:
           app-name: 'InternalWebsiteBackend'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_341ABA7075224853B71FC439A674CC0C }}
-
-      - name: Set startup command for FastAPI
-        run: |
-          echo "web: poetry run uvicorn main:app --host 0.0.0.0 --port 80" > /home/site/wwwroot/startup.sh
-        env:
-          AZURE_WEBAPP_NAME: 'InternalWebsiteBackend'
