@@ -8,14 +8,28 @@ from src.utils.screenshot import Screenshot
 class Upload:
     def __init__(self):
         self.api = YouTubeApiData(token=youtube.token)
+        self.screenshot = Screenshot()
 
-    def orchestrate(self, video: object, file: object, title: str, description: str, playlists: list[str]):
-        upload = self.api.upload(video=video, title=title, description=description)
-        screenshot = Screenshot()
-        thumbnail = screenshot.capture(video=video, file=file)
-        with TemporaryDirectory() as directory:
-            path = screenshot.save(frame=thumbnail, directory=directory)
-            self.api.thumbnail(videoId=upload["id"], path=path)
-        for playlistId in playlists:
-            self.api.playlist(playlistId=playlistId, videoId=upload["id"])
-        self.api.rate(videoId=upload["id"])
+    def orchestrate(self, path: str, title: str, description: str, playlists: list[str]):
+        try:
+            with open(path, "rb") as video:
+                upload = self.api.upload(video=video.read(), title=title, description=description)
+        except Exception as e:
+            print(e)
+        try:
+            with TemporaryDirectory() as directory:
+                with open(path, "rb") as video:
+                    thumbnail = self.screenshot.capture(video=video.read())
+                location = self.screenshot.save(frame=thumbnail, directory=directory)
+                self.api.thumbnail(videoId=upload["id"], path=location)
+        except Exception as e:
+            print(e)
+        try:
+            for playlistId in playlists:
+                self.api.playlist(playlistId=playlistId, videoId=upload["id"])
+        except Exception as e:
+            print(e)
+        try:
+            self.api.rate(videoId=upload["id"])
+        except Exception as e:
+            print(e)

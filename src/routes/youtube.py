@@ -2,6 +2,7 @@ from fastapi import APIRouter, UploadFile, Depends, File, Form, BackgroundTasks
 from typing import Optional
 from os.path import splitext
 from ntpath import basename
+from tempfile import NamedTemporaryFile
 
 from src.models.user import User
 from src.utils.auth import verify
@@ -58,10 +59,13 @@ async def upload(
     playlists: Optional[str] = Form(""),
     comment: Optional[str] = Form(""),
 ):
-    video = await file.read()
+    with NamedTemporaryFile(delete=False, suffix=".mp4") as video:
+        while chunk := await file.read(1024):
+            video.write(chunk)
+        path = video.name
     title = splitext(basename(file.filename))[0]
     description = f"{comment}\n\n{text}" if comment else text
     description = f"WavesOnly Throwback Thursday: {title}\n\n{description}" if throwbackThursday else f"{title}\n\n{description}"
     playlists = playlists.split(",") if playlists else []
-    background.add_task(Upload().orchestrate, video=video, file=file, title=title, description=description, playlists=playlists)
+    background.add_task(Upload().orchestrate, path=path, title=title, description=description, playlists=playlists)
     return {"message": "Uploaded started"}

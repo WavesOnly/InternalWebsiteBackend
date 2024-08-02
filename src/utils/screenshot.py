@@ -1,6 +1,5 @@
 from cv2 import VideoCapture, CAP_PROP_FPS, imwrite
-from os.path import join, exists, getsize
-import os
+from os.path import join
 from tempfile import TemporaryDirectory
 from shutil import copyfileobj
 from io import BytesIO
@@ -10,9 +9,9 @@ class Screenshot:
     def __init__(self):
         pass
 
-    def capture(self, video: bytes, file: object, timestamp: str = "00:00:02") -> object:
+    def capture(self, video: bytes, timestamp: str = "00:00:02") -> object:
         with TemporaryDirectory() as directory:
-            path = join(directory, file.filename)
+            path = join(directory, "video.mp4")
             with open(path, "wb") as buffer:
                 with BytesIO(video) as stream:
                     copyfileobj(stream, buffer)
@@ -28,7 +27,7 @@ class Screenshot:
             return frame
 
     def save(self, frame: object, directory: TemporaryDirectory, filename: str = "Thumbnail.jpg") -> None:
-        path = join(directory, "Thumbnail.jpg")
+        path = join(directory, filename)
         success = imwrite(path, frame)
         if not success:
             raise RuntimeError("Failed to save the frame to a temporary file.")
