@@ -13,8 +13,7 @@ class Upload:
 
     def orchestrate(self, path: str, title: str, description: str, playlists: list[str]):
         try:
-            with open(path, "rb") as video:
-                upload = self.api.upload(video=video.read(), title=title, description=description)
+            upload = self.api.upload(path=path, title=title, description=description)
         except Exception as e:
             print(e)
         try:
