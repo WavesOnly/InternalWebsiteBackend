@@ -59,15 +59,10 @@ async def upload(
     playlists: Optional[str] = Form(""),
     comment: Optional[str] = Form(""),
 ):
-    with NamedTemporaryFile(delete=False, suffix=".mp4") as video:
-        size = 50 * 1024 * 1024
-        while chunk := await file.read(size):
-            video.write(chunk)
-        print("Video file written")
-        path = video.name
+    video = await file.read()
     title = splitext(basename(file.filename))[0]
     description = f"{comment}\n\n{text}" if comment else text
     description = f"WavesOnly Throwback Thursday: {title}\n\n{description}" if throwbackThursday else f"{title}\n\n{description}"
     playlists = playlists.split(",") if playlists else []
-    background.add_task(Upload().orchestrate, path=path, title=title, description=description, playlists=playlists)
+    background.add_task(Upload().orchestrate, video=video, title=title, description=description, playlists=playlists)
     return {"message": "Uploaded started"}
