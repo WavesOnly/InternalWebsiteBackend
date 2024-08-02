@@ -21,3 +21,4 @@ class Upload:
         for playlistId in playlists:
             self.api.playlist(playlistId=playlistId, videoId=upload["id"])
         self.api.rate(videoId=upload["id"])
+        print("Orchestration complete")
