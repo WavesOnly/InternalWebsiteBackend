@@ -28,6 +28,3 @@ class RemoveOutdatedSongs:
                 )
             except:
                 continue
-
-
-RemoveOutdatedSongs().run()
