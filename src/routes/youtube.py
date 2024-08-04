@@ -65,4 +65,4 @@ async def upload(
     description = f"WavesOnly Throwback Thursday: {title}\n\n{description}" if throwbackThursday else f"{title}\n\n{description}"
     playlists = playlists.split(",") if playlists else []
     background.add_task(Upload().orchestrate, video=video, title=title, description=description, playlists=playlists)
-    return {"message": "Uploaded started"}
+    return {"message": "Upload started"}
