@@ -128,7 +128,6 @@ async def analytics(user: User = Depends(verify)):
 
 @router.post("/add-song")
 async def add(data: AddSong, user: User = Depends(verify)):
-    print("here")
     api = SpotifyApiData(token=spotify.token)
     if "spotify.com/track" not in data.link and "spotify.com/album" not in data.link:
         raise HTTPException(status_code=400, detail={"message": "Invalid Spotify link"})
@@ -146,7 +145,6 @@ async def add(data: AddSong, user: User = Depends(verify)):
             if item["track"]["id"] == track["id"]:
                 playlist = api.playlist(id=playlist.id)
                 raise HTTPException(status_code=400, detail={"message": f"Track already in playlist '{playlist['name']}'"})
-        print("here 2")
         today = datetime.combine(datetime.now(timezone.utc).date(), datetime.min.time(), tzinfo=timezone.utc)
         try:
             document = {
@@ -158,7 +156,6 @@ async def add(data: AddSong, user: User = Depends(verify)):
                 "promotion": data.promotion,
                 "comment": data.comment,
             }
-            print(document)
             history = SongHistoryCreate(**document)
             mongo.insert(collection="history", document=history.model_dump())
             api.add(id=playlist.id, uri=f"spotify:track:{track['id']}", position=(playlist.position - 1))
