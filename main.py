@@ -1,10 +1,16 @@
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.logger import logger
+
 from src.routes import auth
 from src.routes import youtube
 from src.routes import spotify
 from src.routes import general
 
+log = logging.getLogger("gunicorn")
+logger.handlers = log.handlers
+logger.setLevel(log.level)
 
 app = FastAPI()
 
