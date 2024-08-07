@@ -5,6 +5,7 @@ from httpx import AsyncClient
 from urllib.parse import unquote
 
 from src.models.auth import Tokens
+from main import logger
 
 
 class GoogleOAuth:
@@ -32,6 +33,7 @@ class GoogleOAuth:
                 },
             )
             print(response.json())
+            logger.info(response.json())
             if response.status_code != 200:
                 raise HTTPException(status_code=400, detail="Failed to exchange code for tokens")
             data = response.json()
