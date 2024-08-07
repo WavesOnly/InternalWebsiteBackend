@@ -5,7 +5,6 @@ from httpx import AsyncClient
 from urllib.parse import unquote
 
 from src.models.auth import Tokens
-from main import logger
 
 
 class GoogleOAuth:
