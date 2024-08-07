@@ -32,10 +32,8 @@ class GoogleOAuth:
                     "grant_type": "authorization_code",
                 },
             )
-            print(response.json())
-            logger.info(response.json())
             if response.status_code != 200:
-                raise HTTPException(status_code=400, detail="Failed to exchange code for tokens")
+                raise HTTPException(status_code=400, detail=response.json())
             data = response.json()
             return Tokens(accessToken=data["access_token"], refreshToken=data["refresh_token"], idToken=data["id_token"])
 
