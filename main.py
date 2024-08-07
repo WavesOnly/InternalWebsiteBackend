@@ -8,9 +8,9 @@ from src.routes import youtube
 from src.routes import spotify
 from src.routes import general
 
-log = logging.getLogger("gunicorn")
-logger.handlers = log.handlers
-logger.setLevel(log.level)
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
 
 app = FastAPI()
 
