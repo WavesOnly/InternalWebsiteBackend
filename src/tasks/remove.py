@@ -2,7 +2,6 @@ from src.database.mongo import mongo
 from src.utils.spotify.client import spotify
 from src.utils.spotify.data import SpotifyApiData
 from datetime import datetime, timezone
-from pprint import pprint
 
 
 class RemoveOutdatedSongs:
