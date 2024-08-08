@@ -152,7 +152,7 @@ async def add(data: AddSong, user: User = Depends(verify)):
                 "artists": [{"name": artist["name"], "id": artist["id"]} for artist in track["artists"]],
                 "playlist": {"id": playlist.id, "position": playlist.position, "duration": playlist.duration, "removed": False},
                 "dateAdded": today,
-                "dateRemoval": today,
+                "dateRemoval": today + timedelta(days=playlist.duration) if playlist.duration else None,
                 "promotion": data.promotion,
                 "comment": data.comment,
             }
