@@ -20,6 +20,12 @@ class AddSong(BaseModel):
     playlists: List[PlaylistAddItem] = Field(default_factory=list, min_items=1)
     comment: Optional[str] = None
 
+    @field_validator("comment", mode="before")
+    def convert(cls, comment):
+        if isinstance(comment, str) and comment == "":
+            return None
+        return comment
+
 
 class UpdatePlaylist(BaseModel):
     playlistId: str
