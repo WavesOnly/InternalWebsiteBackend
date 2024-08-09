@@ -15,7 +15,7 @@ class Mongo:
         id = self.db[collection].insert_one(document=document)
         return id
 
-    def update(self, collection: str, id: dict, query: dict, upsert: bool) -> str:
+    def update(self, collection: str, id: dict, query: dict, upsert: bool = False) -> str:
         id = self.db[collection].update_one(id, query, upsert=upsert)
         return id
 

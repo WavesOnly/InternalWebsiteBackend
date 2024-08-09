@@ -31,13 +31,14 @@ class UpdateSpotifyData:
             )
             document = self.mongo.one(collection="spotifyPlaylists", query={"playlistId": playlist["id"]})
             growth = self._average(history=document["followerHistory"])
+            items = self.api.items(id=playlist["id"])
+            for item in items["items"]:
+                item["added_at"] = datetime.strptime(item["added_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+            updated = max(items["items"], key=lambda x: x["added_at"])["added_at"]
             self.mongo.update(
                 collection="spotifyPlaylists",
                 id={"playlistId": playlist["id"]},
-                query={
-                    "$set": {"averageGrowth": growth},
-                },
-                upsert=False,
+                query={"$set": {"averageGrowth": growth, "lastUpdated": updated}},
             )
 
     def _account(self):
@@ -51,7 +52,6 @@ class UpdateSpotifyData:
                 "$set": {"followers": followers},
                 "$push": {"followerHistory": {"date": date, "followers": followers}},
             },
-            upsert=True,
         )
 
     def _average(self, history: list[dict]) -> int:

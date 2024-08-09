@@ -23,7 +23,6 @@ class RemoveOutdatedSongs:
                     collection="history",
                     id={"_id": song["_id"]},
                     query={"$set": {"playlist.removed": True}},
-                    upsert=False,
                 )
             except:
                 continue

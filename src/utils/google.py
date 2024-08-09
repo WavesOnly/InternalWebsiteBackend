@@ -31,9 +31,9 @@ class GoogleOAuth:
                     "grant_type": "authorization_code",
                 },
             )
-            if response.status_code != 200:
-                raise HTTPException(status_code=400, detail=response.json())
             data = response.json()
+            if response.status_code != 200:
+                raise HTTPException(status_code=400, detail={"message": data["error_description"]})
             return Tokens(accessToken=data["access_token"], refreshToken=data["refresh_token"], idToken=data["id_token"])
 
     async def verify(self, token: str) -> dict:

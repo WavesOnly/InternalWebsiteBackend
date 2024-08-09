@@ -145,7 +145,8 @@ async def add(data: AddSong, user: User = Depends(verify)):
             if item["track"]["id"] == track["id"]:
                 playlist = api.playlist(id=playlist.id)
                 raise HTTPException(status_code=400, detail={"message": f"Track already in playlist '{playlist['name']}'"})
-        today = datetime.combine(datetime.now(timezone.utc).date(), datetime.min.time(), tzinfo=timezone.utc)
+        now = datetime.now(timezone.utc)
+        today = datetime.combine(now.date(), datetime.min.time(), tzinfo=timezone.utc)
         try:
             document = {
                 "song": {"name": track["name"], "id": track["id"]},
@@ -158,9 +159,19 @@ async def add(data: AddSong, user: User = Depends(verify)):
             }
             history = SongHistoryCreate(**document)
             mongo.insert(collection="history", document=history.model_dump())
+        except Exception as e:
+            raise HTTPException(status_code=400, detail={"message": f"Error insertion song data into database: {e}"})
+        try:
             api.add(id=playlist.id, uri=f"spotify:track:{track['id']}", position=(playlist.position - 1))
         except Exception as e:
-            raise HTTPException(status_code=400, detail={"message": f"Error adding song {e}"})
+            raise HTTPException(status_code=400, detail={"message": f"Error adding song to Spotify playlist {playlist.id}: {e}"})
+        try:
+            mongo.update(collection="spotifyPlaylists", id={"playlistId": playlist.id}, query={"$set": {"lastUpdated": now}})
+        except Exception as e:
+            raise HTTPException(
+                status_code=400,
+                detail={"message": f"Error updating 'Last Updated' for playlist {playlist.id} on database: {e}"},
+            )
     return {"message": "Added to playlist(s)"}
 
 
