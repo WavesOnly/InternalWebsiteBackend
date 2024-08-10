@@ -32,6 +32,7 @@ async def playlists(user: User = Depends(verify)):
                     "followers": document["followers"],
                     "imageUrl": playlist["images"][0]["url"],
                     "averageGrowth": document["averageGrowth"],
+                    "lastUpdated": document["lastUpdated"],
                 }
             )
     return {"playlists": data}

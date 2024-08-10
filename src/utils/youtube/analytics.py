@@ -19,7 +19,7 @@ class YouTubeApiAnalytics:
             "ids": "channel==MINE",
             "startDate": today - timedelta(days=29),
             "endDate": datetime.now().date(),
-            "metrics": "views,subscribersGained,estimatedRevenue,estimatedMinutesWatched",
+            "metrics": "views,subscribersGained,subscribersLost,estimatedRevenue,estimatedMinutesWatched",
             "dimensions": "day",
             "filters": f"channel=={id}",
             "sort": "day",

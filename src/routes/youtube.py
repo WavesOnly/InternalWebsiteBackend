@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, Depends, File, Form, BackgroundTasks
 from typing import Optional
 from os.path import splitext
 from ntpath import basename
-from tempfile import NamedTemporaryFile
+from statistics import mean
 
 from src.models.user import User
 from src.utils.auth import verify
@@ -16,6 +16,12 @@ from src.utils.youtube.description import text
 
 
 router = APIRouter(prefix="/youtube")
+
+
+@router.get("/playlists")
+async def playlists(user: User = Depends(verify)):
+    playlists = YouTubeApiData(token=youtube.token).playlists()["items"]
+    return {"playlists": [{"id": playlist["id"], "name": playlist["snippet"]["title"]} for playlist in playlists]}
 
 
 @router.get("/subscribers-by-day")
@@ -32,22 +38,26 @@ async def analytics(user: User = Depends(verify)):
     analytics = YouTubeApiAnalytics(token=youtube.token)
     daily = analytics.daily()
     monthly = analytics.monthly()
+    data = {
+        "daily": [dict(zip([header["name"] for header in daily["columnHeaders"]], row)) for row in daily["rows"]],
+        "monthly": [dict(zip([header["name"] for header in monthly["columnHeaders"]], row)) for row in monthly["rows"]],
+    }
     return {
         "viewCount": int(statistics["items"][0]["statistics"]["viewCount"]),
         "subscriberCount": int(statistics["items"][0]["statistics"]["subscriberCount"]),
-        "viewCountPrevious28Days": sum(row[1] for row in daily["rows"]),
-        "subscribersCountPrevious28Days": sum(row[2] for row in daily["rows"]),
-        "estimatedRevenuePrevious28Days": round(sum(row[3] for row in daily["rows"]), 2),
-        "watchTimePrevious28Days": int(sum(row[4] for row in daily["rows"]) / 60),
-        "subscribersByDay": [{"date": row[0], "subscribers": row[2]} for row in daily["rows"]],
-        "revenueByMonth": [{"month": months[row[0].split("-")[1]], "value": round(row[1], 2)} for row in monthly["rows"]],
+        "viewCountPrevious28Days": sum(row["views"] for row in data["daily"]),
+        "subscribersCountPrevious28Days": sum(row["subscribersGained"] - row["subscribersLost"] for row in data["daily"]),
+        "averageSubscriberGrowthPrevious28Days": mean(row["subscribersGained"] - row["subscribersLost"] for row in data["daily"]),
+        "estimatedRevenuePrevious28Days": sum(row["estimatedRevenue"] for row in data["daily"]),
+        "averageEstimatedRevenuePrevious28Days": mean(row["estimatedRevenue"] for row in data["daily"]),
+        "watchTimePrevious28Days": int(sum(row["estimatedMinutesWatched"] for row in data["daily"]) / 60),
+        "subscribersByDay": [
+            {"date": row["day"], "subscribers": row["subscribersGained"] - row["subscribersLost"]} for row in data["daily"]
+        ],
+        "revenueByMonth": [
+            {"month": months[row["month"].split("-")[1]], "value": round(row["estimatedRevenue"], 2)} for row in data["monthly"]
+        ],
     }
-
-
-@router.get("/playlists")
-async def playlists(user: User = Depends(verify)):
-    playlists = YouTubeApiData(token=youtube.token).playlists()["items"]
-    return {"playlists": [{"id": playlist["id"], "name": playlist["snippet"]["title"]} for playlist in playlists]}
 
 
 @router.post("/upload")
