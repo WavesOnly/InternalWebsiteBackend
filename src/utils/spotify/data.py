@@ -53,8 +53,8 @@ class SpotifyApiData:
         response = self.session.delete(url=url, headers={"Authorization": f"Bearer {self.token}"}, json=data)
         return response.json()
 
-    def user(self) -> dict:
-        url = f"{SpotifyApiData.url}/users/w5sxze6rmcbs22r6w22ks8zme"
+    def user(self, id: str = "w5sxze6rmcbs22r6w22ks8zme") -> dict:
+        url = f"{SpotifyApiData.url}/users/{id}"
         response = self.session.get(url=url, headers={"Authorization": f"Bearer {self.token}"})
         return response.json()
 

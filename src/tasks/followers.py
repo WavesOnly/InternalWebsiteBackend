@@ -53,6 +53,13 @@ class UpdateSpotifyData:
                 "$push": {"followerHistory": {"date": date, "followers": followers}},
             },
         )
+        document = self.mongo.one(collection="spotifyAccount", query={"userId": user["id"]})
+        growth = self._average(history=document["followerHistory"])
+        self.mongo.update(
+            collection="spotifyAccount",
+            id={"userId": "w5sxze6rmcbs22r6w22ks8zme"},
+            query={"$set": {"averageGrowth": growth}},
+        )
 
     def _average(self, history: list[dict]) -> int:
         if not history or len(history) < 2:
