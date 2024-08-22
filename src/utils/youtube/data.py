@@ -69,3 +69,18 @@ class YouTubeApiData:
         response = self.session.post(url=url, headers={"Authorization": f"Bearer {self.token}"}, params=params)
         if response.status_code != 204:
             raise Exception(f"Rating for video {videoId} failed")
+
+    def items(self, playlistId: str = "UU9RKqI3GeK_fdHdQyaB5laQ") -> dict:
+        url = f"{YouTubeApiData.url}/playlistItems"
+        params = {"part": "snippet", "playlistId": playlistId, "maxResults": 50}
+        videos = []
+        page = None
+        while True:
+            params["pageToken"] = page
+            response = self.session.get(url=url, headers={"Authorization": f"Bearer {self.token}"}, params=params)
+            data = response.json()
+            videos.extend(data["items"])
+            page = data.get("nextPageToken")
+            if not page:
+                break
+        return videos

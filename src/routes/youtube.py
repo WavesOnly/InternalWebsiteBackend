@@ -3,6 +3,7 @@ from typing import Optional
 from os.path import splitext
 from ntpath import basename
 from statistics import mean
+from datetime import datetime, timedelta
 
 from src.models.user import User
 from src.utils.auth import verify
@@ -36,7 +37,13 @@ async def subscribers(user: User = Depends(verify)):
 async def analytics(user: User = Depends(verify)):
     statistics = YouTubeApiData(token=youtube.token).channel()
     analytics = YouTubeApiAnalytics(token=youtube.token)
-    daily = analytics.daily()
+    today = datetime.now().date()
+    daily = analytics.daily(
+        start=(today - timedelta(days=29)),
+        end=today,
+        metrics=["views", "subscribersGained", "subscribersLost", "estimatedRevenue", "estimatedMinutesWatched"],
+        filters={"channel": "UC9RKqI3GeK_fdHdQyaB5laQ"},
+    )
     monthly = analytics.monthly()
     data = {
         "daily": [dict(zip([header["name"] for header in daily["columnHeaders"]], row)) for row in daily["rows"]],

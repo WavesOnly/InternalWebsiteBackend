@@ -12,16 +12,25 @@ class YouTubeApiAnalytics:
         self.session.hooks["response"].append(YouTubeHandler().refresh)
         self.token = token
 
-    def daily(self, id: str = "UC9RKqI3GeK_fdHdQyaB5laQ") -> dict:
+    def daily(
+        self,
+        start: datetime,
+        end: datetime,
+        metrics: list,
+        filters: str,
+    ) -> dict:
         url = f"{YouTubeApiAnalytics.url}/reports"
-        today = datetime.now().date()
+        filters = ";".join(
+            f"{key}=={value}" if not isinstance(value, list) else ";".join(f"{key}=={item}" for item in value)
+            for key, value in filters.items()
+        )
         params = {
             "ids": "channel==MINE",
-            "startDate": today - timedelta(days=29),
-            "endDate": datetime.now().date(),
-            "metrics": "views,subscribersGained,subscribersLost,estimatedRevenue,estimatedMinutesWatched",
+            "startDate": start,
+            "endDate": end,
+            "metrics": ",".join(metrics),
             "dimensions": "day",
-            "filters": f"channel=={id}",
+            "filters": filters,
             "sort": "day",
         }
         response = self.session.get(url=url, headers={"Authorization": f"Bearer {self.token}"}, params=params)
