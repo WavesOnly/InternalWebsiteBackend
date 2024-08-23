@@ -27,9 +27,18 @@ async def playlists(user: User = Depends(verify)):
 
 @router.get("/subscribers-by-day")
 async def subscribers(user: User = Depends(verify)):
-    daily = YouTubeApiAnalytics(token=youtube.token).daily()
+    today = datetime.now().date()
+    daily = YouTubeApiAnalytics(token=youtube.token).daily(
+        start=(today - timedelta(days=29)),
+        end=today,
+        metrics=["views", "subscribersGained", "subscribersLost", "estimatedRevenue", "estimatedMinutesWatched"],
+        filters={"channel": "UC9RKqI3GeK_fdHdQyaB5laQ"},
+    )
+    data = {"daily": [dict(zip([header["name"] for header in daily["columnHeaders"]], row)) for row in daily["rows"]]}
     return {
-        "subscribersByDay": [{"date": row[0], "subscribers": row[2]} for row in daily["rows"]],
+        "subscribersByDay": [
+            {"date": row["day"], "subscribers": row["subscribersGained"] - row["subscribersLost"]} for row in data["daily"]
+        ],
     }
 
 
