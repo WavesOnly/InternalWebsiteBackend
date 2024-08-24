@@ -35,7 +35,7 @@ async def playlists(user: User = Depends(verify)):
                     "lastUpdated": document["lastUpdated"],
                 }
             )
-    return {"playlists": data}
+    return {"playlists": sorted(data, key=lambda playlist: playlist["followers"], reverse=True)}
 
 
 @router.get("/playlists/history/{id:path}")
