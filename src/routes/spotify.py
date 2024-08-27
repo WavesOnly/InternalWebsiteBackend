@@ -105,20 +105,15 @@ async def analytics(user: User = Depends(verify)):
             {"$project": {"_id": 0, "totalFollowers": 1}},
         ],
     )
+    date = datetime.now() - timedelta(days=28)
     query = [
         {"$unwind": "$followerHistory"},
-        {"$match": {"followerHistory.date": {"$eq": {"$date": {"$subtract": ["$$NOW", 28 * 24 * 60 * 60 * 1000]}}}}},
+        {"$match": {"followerHistory.date": {"$gte": date, "$lt": date + timedelta(days=1)}}},
         {"$group": {"_id": None, "totalFollowers": {"$sum": "$followerHistory.followers"}}},
         {"$project": {"_id": 0, "totalFollowers": 1}},
     ]
-    try:
-        previous = mongo.pipeline(collection="spotifyPlaylists", query=query)[0]["totalFollowers"]
-    except IndexError:
-        previous = 0
-    try:
-        account = mongo.pipeline(collection="spotifyAccount", query=query)[0]["totalFollowers"]
-    except IndexError:
-        account = 0
+    previous = mongo.pipeline(collection="spotifyPlaylists", query=query)[0]["totalFollowers"]
+    account = mongo.pipeline(collection="spotifyAccount", query=query)[0]["totalFollowers"]
     return {
         "accountFollowers": user["followers"]["total"],
         "playlistFollowers": playlists[0]["totalFollowers"],
