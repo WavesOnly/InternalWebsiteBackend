@@ -43,6 +43,7 @@ class UpdateSpotifyData:
 
     def _account(self):
         user = self.api.user()
+        print(user)
         followers = user["followers"]["total"]
         date = datetime.combine(datetime.now(timezone.utc).date(), datetime.min.time(), tzinfo=timezone.utc)
         self.mongo.update(
