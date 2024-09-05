@@ -18,6 +18,7 @@ class UpdateSpotifyData:
         playlists = [{"id": playlist["id"]} for playlist in playlists if playlist["owner"]["id"] == "w5sxze6rmcbs22r6w22ks8zme"]
         for playlist in playlists:
             data = self.api.playlist(id=playlist["id"])
+            print(data)
             followers = data["followers"]["total"]
             date = datetime.combine(datetime.now(timezone.utc).date(), datetime.min.time(), tzinfo=timezone.utc)
             self.mongo.update(
