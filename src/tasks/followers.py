@@ -10,8 +10,8 @@ class UpdateSpotifyData:
         self.api = SpotifyApiData(token=spotify.token)
 
     def run(self):
-        self._playlists()
         self._account()
+        self._playlists()
 
     def _playlists(self):
         playlists = self.api.playlists()["items"]
