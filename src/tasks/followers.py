@@ -18,7 +18,6 @@ class UpdateSpotifyData:
         playlists = [{"id": playlist["id"]} for playlist in playlists if playlist["owner"]["id"] == "w5sxze6rmcbs22r6w22ks8zme"]
         for playlist in playlists:
             data = self.api.playlist(id=playlist["id"])
-            print(data)
             followers = data["followers"]["total"]
             date = datetime.combine(datetime.now(timezone.utc).date(), datetime.min.time(), tzinfo=timezone.utc)
             self.mongo.update(
@@ -40,11 +39,11 @@ class UpdateSpotifyData:
                 collection="spotifyPlaylists",
                 id={"playlistId": playlist["id"]},
                 query={"$set": {"averageGrowth": growth, "lastUpdated": updated}},
+                upsert=True,
             )
 
     def _account(self):
         user = self.api.user()
-        print(user)
         followers = user["followers"]["total"]
         date = datetime.combine(datetime.now(timezone.utc).date(), datetime.min.time(), tzinfo=timezone.utc)
         self.mongo.update(
@@ -54,6 +53,7 @@ class UpdateSpotifyData:
                 "$set": {"followers": followers},
                 "$push": {"followerHistory": {"date": date, "followers": followers}},
             },
+            upsert=True,
         )
         document = self.mongo.one(collection="spotifyAccount", query={"userId": user["id"]})
         growth = self._average(history=document["followerHistory"])
@@ -61,6 +61,7 @@ class UpdateSpotifyData:
             collection="spotifyAccount",
             id={"userId": "w5sxze6rmcbs22r6w22ks8zme"},
             query={"$set": {"averageGrowth": growth}},
+            upsert=True,
         )
 
     def _average(self, history: list[dict]) -> int:
