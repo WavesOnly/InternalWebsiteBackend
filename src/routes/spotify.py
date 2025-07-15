@@ -38,8 +38,8 @@ async def playlists(user: User = Depends(verify)):
     return {"playlists": sorted(data, key=lambda playlist: playlist["followers"], reverse=True)}
 
 
-@router.get("/playlists/history/{id:path}")
-async def playlist(id: Optional[str] = None, user: User = Depends(verify)):
+@router.get("/playlists/history/{id:path}?{timePeriod28Days:path}}")
+async def playlist(id: Optional[str] = None, timePeriod28Days: bool = True, user: User = Depends(verify)):
     if not id:
         now = datetime.now(timezone.utc)
         followers = mongo.pipeline(
@@ -55,9 +55,7 @@ async def playlist(id: Optional[str] = None, user: User = Depends(verify)):
         return {"playlistFollowerHistory": jsonable_encoder([FollowerHistoryItem(**item) for item in followers])}
     else:
         playlist = mongo.one(collection="spotifyPlaylists", query={"playlistId": id})
-        return {
-            "playlistFollowerHistory": jsonable_encoder([FollowerHistoryItem(**item) for item in playlist["followerHistory"]])
-        }
+        return {"playlistFollowerHistory": jsonable_encoder([FollowerHistoryItem(**item) for item in playlist["followerHistory"]])}
 
 
 @router.get("/playlist/items/{id:path}")
