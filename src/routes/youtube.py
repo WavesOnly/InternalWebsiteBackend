@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, Depends, File, Form, BackgroundTasks
+from fastapi import APIRouter, HTTPException, UploadFile, Depends, File, Form, BackgroundTasks
 from typing import Optional
 from os.path import splitext
 from ntpath import basename
@@ -21,12 +21,16 @@ router = APIRouter(prefix="/youtube")
 
 @router.get("/playlists")
 async def playlists(user: User = Depends(verify)):
+    if "YouTube" not in user.roles:
+        raise HTTPException(status_code=403, detail=f"User with E-Mail '{user.email}' does not have YouTube access")
     playlists = YouTubeApiData(token=youtube.token).playlists()["items"]
     return {"playlists": [{"id": playlist["id"], "name": playlist["snippet"]["title"]} for playlist in playlists]}
 
 
 @router.get("/subscribers-by-day")
 async def subscribers(user: User = Depends(verify)):
+    if "YouTube" not in user.roles:
+        raise HTTPException(status_code=403, detail=f"User with E-Mail '{user.email}' does not have YouTube access")
     today = datetime.now().date()
     daily = YouTubeApiAnalytics(token=youtube.token).daily(
         start=(today - timedelta(days=29)),
@@ -44,6 +48,8 @@ async def subscribers(user: User = Depends(verify)):
 
 @router.get("/analytics")
 async def analytics(user: User = Depends(verify)):
+    if "YouTube" not in user.roles:
+        raise HTTPException(status_code=403, detail=f"User with E-Mail '{user.email}' does not have YouTube access")
     statistics = YouTubeApiData(token=youtube.token).channel()
     analytics = YouTubeApiAnalytics(token=youtube.token)
     today = datetime.now().date()
@@ -85,6 +91,8 @@ async def upload(
     playlists: Optional[str] = Form(""),
     comment: Optional[str] = Form(""),
 ):
+    if "YouTube" not in user.roles:
+        raise HTTPException(status_code=403, detail=f"User with E-Mail '{user.email}' does not have YouTube access")
     video = await file.read()
     title = splitext(basename(file.filename))[0]
     description = f"{comment}\n\n{text}" if comment else text

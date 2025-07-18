@@ -1,13 +1,15 @@
 from src.utils.api import session, SpotifyHandler
+from src.models.user import User
 
 
 class SpotifyApiData:
     url = "https://api.spotify.com/v1"
 
-    def __init__(self, token: str):
+    def __init__(self, user: User):
         self.session = session
-        self.session.hooks["response"].append(SpotifyHandler().refresh)
-        self.token = token
+        self.session.hooks["response"] = []
+        self.session.hooks["response"].append(SpotifyHandler(user=user).refresh)
+        self.token = user.spotifyAccessToken
 
     def track(self, id: str) -> dict:
         url = f"{SpotifyApiData.url}/tracks/{id}"
@@ -19,8 +21,8 @@ class SpotifyApiData:
         response = self.session.get(url=url, headers={"Authorization": f"Bearer {self.token}"})
         return response.json()
 
-    def playlists(self) -> dict:
-        url = f"{SpotifyApiData.url}/users/w5sxze6rmcbs22r6w22ks8zme/playlists"
+    def playlists(self, user_id: str) -> dict:
+        url = f"{SpotifyApiData.url}/users/{user_id}/playlists"
         response = self.session.get(url=url, headers={"Authorization": f"Bearer {self.token}"})
         return response.json()
 
@@ -53,7 +55,7 @@ class SpotifyApiData:
         response = self.session.delete(url=url, headers={"Authorization": f"Bearer {self.token}"}, json=data)
         return response.json()
 
-    def user(self, id: str = "w5sxze6rmcbs22r6w22ks8zme") -> dict:
+    def user(self, id: str) -> dict:
         url = f"{SpotifyApiData.url}/users/{id}"
         response = self.session.get(url=url, headers={"Authorization": f"Bearer {self.token}"})
         return response.json()

@@ -35,6 +35,7 @@ class SongHistoryBase(BaseModel):
 
 
 class SongHistoryCreate(SongHistoryBase):
+    spotifyUserId: str
     dateRemoval: Optional[datetime]
 
 

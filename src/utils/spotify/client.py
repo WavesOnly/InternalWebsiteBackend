@@ -1,7 +1,7 @@
 import requests
 from dotenv import load_dotenv
 from os import environ
-from base64 import b64encode, encode, decode
+from base64 import b64encode
 
 
 class SpotifyApiClient:
