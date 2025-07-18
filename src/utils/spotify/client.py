@@ -3,15 +3,17 @@ from dotenv import load_dotenv
 from os import environ
 from base64 import b64encode
 
+from models.user import User
+
 
 class SpotifyApiClient:
     url = "https://accounts.spotify.com/api/token"
 
-    def __init__(self):
+    def __init__(self, user: User):
         load_dotenv(".env")
         self.id = environ["SPOTIFY_CLIENT_ID"]
         self.secret = environ["SPOTIFY_CLIENT_SECRET"]
-        self.refresh = environ["SPOTIFY_REFRESH_TOKEN"]
+        self.refresh = user.spotifyRefreshToken
         self.token = self.fetch()
 
     def fetch(self) -> str:
@@ -21,6 +23,3 @@ class SpotifyApiClient:
         response = requests.post(url=SpotifyApiClient.url, headers=headers, data=data).json()
         self.token = response["access_token"]
         return self.token
-
-
-spotify = SpotifyApiClient()
