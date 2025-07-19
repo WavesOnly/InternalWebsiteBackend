@@ -20,7 +20,6 @@ async def meetings(user: User = Depends(verify)):
     
 @router.post("/task")
 async def task(token: str = Header(...)):
-    load_dotenv(".env")
     if token != environ["CRON_JOB_TOKEN"]:
         raise HTTPException(status_code=403, detail="Forbidden")
     main()
