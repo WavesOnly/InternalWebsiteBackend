@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
+from dotenv import load_dotenv
+from os import environ
 
 from src.models.user import User
-from src.models.general import Task
 from src.utils.auth import verify
 from src.tasks.main import main
 
@@ -18,8 +19,9 @@ async def meetings(user: User = Depends(verify)):
         raise HTTPException(status_code=403, detail=f"User with E-Mail '{user.email}' does not have Meetings access")
     
 @router.post("/task")
-async def task(data: Task):
-    if data.password != "cron-job":
-        return HTTPException(status_code=403, detail="Access prohibited")
+async def task(token: str = Header(...)):
+    load_dotenv(".env")
+    if token != environ["CRON_JOB_TOKEN"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
     main()
     return {"message": "Task(s) completed successfully"}
