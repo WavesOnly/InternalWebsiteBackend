@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from os import environ
 from base64 import b64encode
 
-from models.user import User
+from src.models.user import User
 
 
 class SpotifyApiClient:
