@@ -22,14 +22,17 @@ class RefreshOutdatedSongs:
             self._update(id=playlist["id"])
 
     def _update(self, id: str):
-        tracks = self.api.items(id=id)
-        outdated = {}
-        cutoff = (datetime.now(timezone.utc) - relativedelta(months=2)).date()
-        for index, track in enumerate(tracks["items"]):
-            added = datetime.strptime(track["added_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).date()
-            if added <= cutoff:
-                outdated[index] = track["track"]["uri"]
-        for index in sorted(outdated.keys(), reverse=True):
-            uri = outdated[index]
-            self.api.remove(id=id, uri=uri)
-            self.api.add(id=id, uri=uri, position=index)
+        try: 
+            tracks = self.api.items(id=id)
+            outdated = {}
+            cutoff = (datetime.now(timezone.utc) - relativedelta(months=2)).date()
+            for index, track in enumerate(tracks["items"]):
+                added = datetime.strptime(track["added_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).date()
+                if added <= cutoff:
+                    outdated[index] = track["track"]["uri"]
+            for index in sorted(outdated.keys(), reverse=True):
+                uri = outdated[index]
+                self.api.remove(id=id, uri=uri)
+                self.api.add(id=id, uri=uri, position=index)
+        except Exception as exception:
+            print(exception)
