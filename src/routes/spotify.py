@@ -11,6 +11,7 @@ from src.models.spotify import AddSong, UpdatePlaylist
 from src.models.database import SongHistory, SongHistoryCreate, FollowerHistoryItem
 from src.utils.spotify.data import SpotifyApiData
 from src.database.mongo import mongo
+from src.tasks.refresh import RefreshOutdatedSongs
 
 
 router = APIRouter(prefix="/spotify")
@@ -195,10 +196,7 @@ async def add(data: AddSong, user: User = Depends(verify)):
         try:
             mongo.update(collection="spotifyPlaylists", id={"playlistId": playlist.id}, query={"$set": {"lastUpdated": now}})
         except Exception as e:
-            raise HTTPException(
-                status_code=400,
-                detail={"message": f"Error updating 'Last Updated' for playlist {playlist.id} on database: {e}"},
-            )
+            raise HTTPException(status_code=400,detail={"message": f"Error updating 'Last Updated' for playlist {playlist.id} on database: {e}"})
     return {"message": "Added to playlist(s)"}
 
 
@@ -218,3 +216,15 @@ async def delete(id: str, ids: List[str] = Query(..., description="List of song 
         raise HTTPException(status_code=403, detail="You don't have access to this playlist")
     SpotifyApiData(user=user).delete(id=id, ids=ids[0].split(","))
     return {"message": "Playlist updated"}
+
+@router.put("/playlist/{id}/refresh")
+async def refresh(data: UpdatePlaylist, user: User = Depends(verify)):
+    playlist = mongo.one(collection="spotifyPlaylists", query={"playlistId": data.playlistId, "spotifyUserId": user.spotifyUserId})
+    if not playlist:
+        raise HTTPException(status_code=403, detail="You don't have access to this playlist")
+    try:
+        refresh = RefreshOutdatedSongs(user=user)
+        refresh._update(id=data.playlistId)
+    except: 
+        raise HTTPException(status_code=400, detail="Error refreshing playlist added at dates")
+    return {"message": "Playlist dates refreshed"}
