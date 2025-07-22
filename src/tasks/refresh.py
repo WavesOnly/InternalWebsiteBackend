@@ -28,7 +28,7 @@ class RefreshOutdatedSongs:
         for index, track in enumerate(tracks["items"]):
             added = datetime.strptime(track["added_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).date()
             if added <= cutoff:
-                outdated[index] = track["uri"]
+                outdated[index] = track["track"]["uri"]
         for index in sorted(outdated.keys(), reverse=True):
             uri = outdated[index]
             self.api.remove(id=id, uri=uri)
