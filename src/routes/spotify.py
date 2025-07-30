@@ -60,27 +60,26 @@ async def playlists(user: User = Depends(verify)):
 
 
 @router.get("/playlists/history/{id:path}")
-async def playlist(id: Optional[str] = None, user: User = Depends(verify)):
-    if not id:
-        now = datetime.now(timezone.utc)
-        followers = mongo.pipeline(
-            collection="spotifyPlaylists",
-            query=[
-                {"$match": {"spotifyUserId": user.spotifyUserId}},
-                {"$unwind": "$followerHistory"},
-                {"$match": {"followerHistory.date": {"$gte": now - timedelta(days=28), "$lte": now}}},
-                {"$group": {"_id": "$followerHistory.date", "totalFollowers": {"$sum": "$followerHistory.followers"}}},
-                {"$sort": {"_id": -1}},
-                {"$project": {"date": "$_id", "followers": "$totalFollowers"}},
-            ],
-        )
-        return {"playlistFollowerHistory": jsonable_encoder([FollowerHistoryItem(**item) for item in followers])}
-    else:
-        playlist = mongo.one(collection="spotifyPlaylists", query={"playlistId": id, "spotifyUserId": user.spotifyUserId})
-        return {
-            "playlistFollowerHistory": jsonable_encoder([FollowerHistoryItem(**item) for item in playlist["followerHistory"]])
-        }
-
+async def playlist(id: Optional[str] = None, days: Optional[str] = Query(..., description="Number of previous days to include in query"), user: User = Depends(verify)):
+    now = datetime.now(timezone.utc)
+    query = [
+        {"$match": {"spotifyUserId": user.spotifyUserId}},
+        {"$unwind": "$followerHistory"},
+        {"$group": {"_id": "$followerHistory.date", "totalFollowers": {"$sum": "$followerHistory.followers"}}},
+        {"$sort": {"_id": -1}},
+        {"$project": {"date": "$_id", "followers": "$totalFollowers"}}
+    ]
+    if id:
+        query[0]["$match"] = {"spotifyUserId": user.spotifyUserId, "playlistId": id}
+    if days and days.lower() != "all":
+        query.insert(2, {"$match": {"followerHistory.date": {"$gte": now - timedelta(days=int(days)), "$lte": now}}})
+    print(query)
+    followers = mongo.pipeline(
+        collection="spotifyPlaylists",
+        query=query
+    )
+    return {"playlistFollowerHistory": jsonable_encoder([FollowerHistoryItem(**item) for item in followers])}
+   
 
 @router.get("/playlist/items/{id:path}")
 async def items(id: Optional[str] = None, user: User = Depends(verify)):
