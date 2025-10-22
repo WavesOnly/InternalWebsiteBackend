@@ -144,7 +144,11 @@ async def analytics(user: User = Depends(verify)):
         previous = previous[0]["totalFollowers"]
     except IndexError:
         previous = 0
-    account = mongo.pipeline(collection="users", query=query)[0]["totalFollowers"]
+    account = mongo.pipeline(collection="users", query=query)
+    try:
+        account = account[0]["totalFollowers"]
+    except IndexError:
+        account = 0
     return {
         "accountFollowers": data["followers"]["total"],
         "playlistFollowers": playlists[0]["totalFollowers"],
