@@ -139,7 +139,11 @@ async def analytics(user: User = Depends(verify)):
         {"$group": {"_id": None, "totalFollowers": {"$sum": "$followerHistory.followers"}}},
         {"$project": {"_id": 0, "totalFollowers": 1}},
     ]
-    previous = mongo.pipeline(collection="spotifyPlaylists", query=query)[0]["totalFollowers"]
+    previous = mongo.pipeline(collection="spotifyPlaylists", query=query)
+    try: 
+        previous = previous[0]["totalFollowers"]
+    except IndexError:
+        previous = 0
     account = mongo.pipeline(collection="users", query=query)[0]["totalFollowers"]
     return {
         "accountFollowers": data["followers"]["total"],
