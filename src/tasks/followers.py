@@ -18,6 +18,7 @@ class UpdateSpotifyData:
         playlists = self.api.playlists(user_id=self.user.spotifyUserId)["items"]
         playlists = [{"id": playlist["id"]} for playlist in playlists if (playlist["owner"]["id"] == self.user.spotifyUserId and playlist["public"] == True)]
         for playlist in playlists:
+            print(playlist)
             data = self.api.playlist(id=playlist["id"])
             followers = data["followers"]["total"]
             date = datetime.combine(datetime.now(timezone.utc).date(), datetime.min.time(), tzinfo=timezone.utc)

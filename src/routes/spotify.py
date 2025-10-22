@@ -130,6 +130,7 @@ async def analytics(user: User = Depends(verify)):
             {"$project": {"_id": 0, "totalFollowers": 1}},
         ],
     )
+    print(playlists)
     date = datetime.now() - timedelta(days=28)
     query = [
         {"$match": {"spotifyUserId": user.spotifyUserId}},
